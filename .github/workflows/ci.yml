@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run unit / integration tests
+        run: make CC=${{ matrix.compiler }} test
+      - name: End-to-end ECU simulation
+        run: make CC=${{ matrix.compiler }} demo
+      - name: AddressSanitizer + UBSan
+        if: matrix.compiler == 'gcc'
+        run: make asan
